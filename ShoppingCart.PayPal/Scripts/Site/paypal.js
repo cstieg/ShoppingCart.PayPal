@@ -27,7 +27,7 @@ paypal.Button.render({
     // payment() is called when the button is clicked
     payment: function (data, actions) {
         // Get JSON order information from server
-        return $.get('/paypal/GetOrderJson?country=' + getCountry())
+        return $.get('/paypal/GetOrderJson')
             .then(function (data) {
                 var payment = JSON.parse(data);
 

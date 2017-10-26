@@ -29,6 +29,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>ShoppingCartPaypal.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControllerHelper">
       <HintPath>..\..\ControllerHelper\ControllerHelper\bin\Release\ControllerHelper.dll</HintPath>
@@ -36,18 +42,12 @@
     <Reference Include="EntityFramework">
       <HintPath>..\..\ShoppingCart\Packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Geography">
-      <HintPath>..\..\Geography\Geography\bin\Release\Geography.dll</HintPath>
-    </Reference>
     <Reference Include="JsonHelper">
       <HintPath>..\..\JsonHelper\JsonHelper\bin\Release\JsonHelper.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Geography\Packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="ShoppingCart">
-      <HintPath>..\..\ShoppingCart\ShoppingCart\bin\Release\ShoppingCart.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,7 +71,24 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\paypal.js" />
+    <Content Include="Scripts\Site\paypal.js" />
+    <None Include="PayPal.json" />
+    <None Include="PayPal.live.json" />
+    <None Include="PayPal.sandbox.json" />
+    <None Include="Readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ShoppingCartPaypal.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Geography\Geography\Geography.csproj">
+      <Project>{c68013c0-5ecd-4c34-ae72-07f6742efb70}</Project>
+      <Name>Geography</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ShoppingCart\ShoppingCart\ShoppingCart.csproj">
+      <Project>{db2b6bdc-fae9-4263-8b08-94fbee9a3850}</Project>
+      <Name>ShoppingCart</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

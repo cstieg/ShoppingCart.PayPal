@@ -1,25 +1,38 @@
-﻿using Newtonsoft.Json;
+﻿/*
+using Newtonsoft.Json;
 using System;
 using System.Data.Entity;
 using System.Web.Mvc;
 using Cstieg.Geography;
 using Cstieg.ControllerHelper;
+using Cstieg.ShoppingCart;
+using Cstieg.ShoppingCart.PayPal;
+using ________.Models
 
-namespace Cstieg.ShoppingCart.PayPal
+namespace ____________.Controllers
 {
     /// <summary>
     /// Controller to provide shopping cart view
     /// </summary>
-    public class ShoppingCartController : Controller
+    public class PayPalController : Controller
     {
-        private DbContext db;
+        private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: ShoppingCart
-        public ActionResult Index()
+
+        public string GetOrderJson()
         {
-            ViewBag.ClientInfo = new PayPalApiClient().GetClientSecrets();
+            //string country = Request.Params.Get("country");
             ShoppingCart shoppingCart = ShoppingCart.GetFromSession(HttpContext);
-            return View(shoppingCart);
+
+            
+            //if (country == "US")
+            //{
+            //    shoppingCart.Order.ShipToAddress.Country = country;
+            //    shoppingCart.RemoveAllShippingCharges();
+            //}
+            
+            shoppingCart.SaveToSession(HttpContext);
+            return _paypalClient.CreateOrder(shoppingCart);
         }
 
         /// <summary>
@@ -27,7 +40,7 @@ namespace Cstieg.ShoppingCart.PayPal
         /// </summary>
         /// <returns>Json success code</returns>
         [HttpPost]
-        public JsonResult VerifyAndSave()
+        public async Task<JsonResult> VerifyAndSave()
         {
             string paymentDetailsJson = Request.Params.Get("paymentDetails");
             PaymentDetails paymentDetails = JsonConvert.DeserializeObject<PaymentDetails>(paymentDetailsJson);
@@ -40,7 +53,7 @@ namespace Cstieg.ShoppingCart.PayPal
             paymentDetails.VerifyShoppingCart(shoppingCart);
             CustomVerification(shoppingCart, paymentDetails);
 
-            SaveShoppingCartToDb(shoppingCart, paymentDetails.Payer.PayerInfo);
+            await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails.Payer.PayerInfo);
 
             // clear shopping cart
             shoppingCart = new ShoppingCart();
@@ -55,16 +68,14 @@ namespace Cstieg.ShoppingCart.PayPal
         /// </summary>
         /// <param name="shoppingCart"></param>
         /// <param name="payerInfo"></param>
-        protected virtual void SaveShoppingCartToDb(ShoppingCart shoppingCart, PayerInfo payerInfo)
+        protected virtual async Task SaveShoppingCartToDbAsync(ShoppingCart shoppingCart, PayerInfo payerInfo)
         {
-            throw new NotImplementedException();
-            /*
             var customersDb = db.Customers;
             var addressesDb = db.Addresses;
             var ordersDb = db.Orders;
 
             // update customer
-            Customer customer = customersDb.SingleOrDefault(c => c.EmailAddress == payerInfo.Email);
+            Customer customer = await customersDb.SingleOrDefaultAsync(c => c.EmailAddress == payerInfo.Email);
             bool isNewCustomer = customer == null;
             if (isNewCustomer)
             {
@@ -100,14 +111,14 @@ namespace Cstieg.ShoppingCart.PayPal
             {
                 AddressBase newAddress = payerInfo.ShippingAddress;
                 newAddress.SetNullStringsToEmpty();
-                Address addressOnFile = addressesDb.Where(a => a.Address1 == newAddress.Address1
+                ShipToAddress addressOnFile = await addressesDb.Where(a => a.Address1 == newAddress.Address1
                                                             && a.Address2 == newAddress.Address2
                                                             && a.City == newAddress.City
                                                             && a.State == newAddress.State
                                                             && a.PostalCode == newAddress.PostalCode
                                                             && a.Phone == newAddress.Phone
                                                             && a.Recipient == newAddress.Recipient
-                                                            && a.CustomerId == customer.Id).FirstOrDefault();
+                                                            && a.CustomerId == customer.Id).FirstOrDefaultAsync();
                 isNewAddress = addressOnFile == null;
 
                 // don't add new address if already in database
@@ -134,7 +145,7 @@ namespace Cstieg.ShoppingCart.PayPal
                 shoppingCart.Order.BillToAddressId = shoppingCart.Order.ShipToAddressId;
             }
 
-            db.SaveChanges();
+            await db.SaveChangesAsync();
 
             // don't add duplicate of product
             for (int i = 0; i < shoppingCart.Order.OrderDetails.Count; i++)
@@ -148,8 +159,7 @@ namespace Cstieg.ShoppingCart.PayPal
             shoppingCart.Order.DateOrdered = DateTime.Now;
             ordersDb.Add(shoppingCart.Order);
 
-            db.SaveChanges();
-            */
+            await db.SaveChangesAsync();
         }
 
         /// <summary>
@@ -169,3 +179,4 @@ namespace Cstieg.ShoppingCart.PayPal
         }
     }
 }
+*/

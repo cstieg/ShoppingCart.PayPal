@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Cstieg.Geography;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Web.Hosting;
@@ -109,7 +110,7 @@ namespace Cstieg.ShoppingCart.PayPal
         /// </summary>
         /// <param name="address">Address to convert</param>
         /// <returns>Object representation of address in PayPal format</returns>
-        private ShippingAddress GetPayPalAddress(Address address)
+        private ShippingAddress GetPayPalAddress(AddressBase address)
         {
             return new ShippingAddress()
             {
