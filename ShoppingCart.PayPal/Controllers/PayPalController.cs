@@ -18,21 +18,41 @@ namespace ____________.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-
-        public string GetOrderJson()
+        /// <summary>
+        /// Gets a PayPal object representation of the order in the shopping cart
+        /// </summary>
+        /// <returns>A JSON object in PayPal order format</returns>
+        public JsonResult GetOrderJson()
         {
             //string country = Request.Params.Get("country");
-            ShoppingCart shoppingCart = ShoppingCart.GetFromSession(HttpContext);
+            ShoppingCart shoppingCart;
+            try
+            {
+                shoppingCart = ShoppingCart.GetFromSession(HttpContext);
+            }
+            catch (Exception e)
+            {
+                return this.JError(400, e.Message);
+            }
 
-            
+            //shoppingCart.Country = country;
             //if (country == "US")
             //{
-            //    shoppingCart.Order.ShipToAddress.Country = country;
             //    shoppingCart.RemoveAllShippingCharges();
             //}
-            
+
             shoppingCart.SaveToSession(HttpContext);
-            return _paypalClient.CreateOrder(shoppingCart);
+
+            string orderJson;
+            try
+            {
+                orderJson = _paypalClient.CreateOrder(shoppingCart);
+            }
+            catch (Exception e)
+            {
+                return this.JError(400, e.Message);
+            }
+            return Json(orderJson, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -50,10 +70,17 @@ namespace ____________.Controllers
             AddressBase shippingAddress = paymentDetails.Payer.PayerInfo.ShippingAddress;
             shippingAddress.CopyTo(shoppingCart.Order.ShipToAddress);
 
-            paymentDetails.VerifyShoppingCart(shoppingCart);
-            CustomVerification(shoppingCart, paymentDetails);
+            try 
+            {
+                paymentDetails.VerifyShoppingCart(shoppingCart);
+                CustomVerification(shoppingCart, paymentDetails);
 
-            await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails.Payer.PayerInfo);
+                await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails.Payer.PayerInfo);
+            }
+            catch (Exception e)
+            {
+                return this.JError(400, e.Message);
+            }
 
             // clear shopping cart
             shoppingCart = new ShoppingCart();
@@ -64,11 +91,11 @@ namespace ____________.Controllers
         }
 
         /// <summary>
-        /// Saves the shopping cart to the database.  Must implement by copying this code to main project, and overriding base
+        /// Saves the shopping cart to the database.
         /// </summary>
-        /// <param name="shoppingCart"></param>
-        /// <param name="payerInfo"></param>
-        protected virtual async Task SaveShoppingCartToDbAsync(ShoppingCart shoppingCart, PayerInfo payerInfo)
+        /// <param name="shoppingCart">Shopping cart stored in session</param>
+        /// <param name="payerInfo">Payer info received from PayPal API</param>
+        private async Task SaveShoppingCartToDbAsync(ShoppingCart shoppingCart, PayerInfo payerInfo)
         {
             var customersDb = db.Customers;
             var addressesDb = db.Addresses;
@@ -163,15 +190,15 @@ namespace ____________.Controllers
         }
 
         /// <summary>
-        /// Custom verification of shopping cart, can be overriden by implementation
+        /// Custom verification of shopping cart
         /// </summary>
-        /// <param name="shoppingCart"></param>
-        /// <param name="paymentDetails"></param>
-        protected virtual void CustomVerification(ShoppingCart shoppingCart, PaymentDetails paymentDetails)
+        /// <param name="shoppingCart">Shopping cart stored in session</param>
+        /// <param name="paymentDetails">Payment details received from PayPal API</param>
+        protected void CustomVerification(ShoppingCart shoppingCart, PaymentDetails paymentDetails)
         {
             AddressBase shippingAddress = paymentDetails.Payer.PayerInfo.ShippingAddress;
-            if ((shoppingCart.Order.ShipToAddress.Country == "US" && shippingAddress.Country != "US") ||
-                (shoppingCart.Order.ShipToAddress.Country != "US" && shippingAddress.Country == "US"))
+            if ((shoppingCart.Country == "US" && shippingAddress.Country != "US") ||
+                (shoppingCart.Country != "US" && shippingAddress.Country == "US"))
             {
                 // change to JSON error
                 throw new ArgumentException("Your country does not match the country selected!");
