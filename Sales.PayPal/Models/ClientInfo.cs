@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Cstieg.ShoppingCart.PayPal
+namespace Cstieg.Sales.PayPal
 {
     /// <summary>
     /// PayPal client info modeling paypal.json

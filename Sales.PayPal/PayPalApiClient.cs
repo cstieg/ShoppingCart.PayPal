@@ -1,10 +1,11 @@
-﻿using Cstieg.Geography;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Web.Hosting;
+using Cstieg.Geography;
+using Cstieg.Sales.Models;
 
-namespace Cstieg.ShoppingCart.PayPal
+namespace Cstieg.Sales.PayPal
 {
     /// <summary>
     /// Client for PayPal API

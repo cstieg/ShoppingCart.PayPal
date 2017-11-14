@@ -1,7 +1,7 @@
 ﻿using Cstieg.Geography;
 using System.Runtime.Serialization;
 
-namespace Cstieg.ShoppingCart.PayPal
+namespace Cstieg.Sales.PayPal
 {
     [DataContract]
     public class PayPalAddress : AddressBase

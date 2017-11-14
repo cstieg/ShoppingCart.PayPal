@@ -63,10 +63,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientInfo.cs" />
+    <Compile Include="Models\ClientInfo.cs" />
     <Compile Include="Controllers\PayPalController.cs" />
-    <Compile Include="PaymentDetails.cs" />
-    <Compile Include="PayPalAddress.cs" />
+    <Compile Include="Models\PaymentDetails.cs" />
+    <Compile Include="Models\PayPalAddress.cs" />
     <Compile Include="PayPalApiClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,9 +85,9 @@
       <Project>{c68013c0-5ecd-4c34-ae72-07f6742efb70}</Project>
       <Name>Geography</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ShoppingCart\ShoppingCart\ShoppingCart.csproj">
+    <ProjectReference Include="..\..\Sales\Sales\Sales.csproj">
       <Project>{db2b6bdc-fae9-4263-8b08-94fbee9a3850}</Project>
-      <Name>ShoppingCart</Name>
+      <Name>Sales</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

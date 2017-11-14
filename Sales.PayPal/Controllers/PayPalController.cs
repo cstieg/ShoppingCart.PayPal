@@ -2,14 +2,16 @@
 using Newtonsoft.Json;
 using System;
 using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using Cstieg.Geography;
 using Cstieg.ControllerHelper;
-using Cstieg.ShoppingCart;
-using Cstieg.ShoppingCart.PayPal;
-using ________.Models
+using Cstieg.Sales;
+using Cstieg.Sales.PayPal;
+using ________.Models;
 
-namespace ____________.Controllers
+namespace ________.Controllers
 {
     /// <summary>
     /// Controller to provide shopping cart view
@@ -17,6 +19,7 @@ namespace ____________.Controllers
     public class PayPalController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private PayPalApiClient _paypalClient = new PayPalApiClient();
 
         /// <summary>
         /// Gets a PayPal object representation of the order in the shopping cart

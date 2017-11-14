@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Cstieg.Geography;
+using Cstieg.Sales.Models;
 
 /// <summary>
 /// Classes modeling json objects used to make PayPal API calls, and received in response from PayPal API calls
 /// </summary>
-namespace Cstieg.ShoppingCart.PayPal
+namespace Cstieg.Sales.PayPal
 {
     /// <summary>
     /// Top-level Json object containing order information
