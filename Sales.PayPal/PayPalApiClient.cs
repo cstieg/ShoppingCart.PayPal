@@ -64,7 +64,7 @@ namespace Cstieg.Sales.PayPal
             // Create JSON order object
             PaymentDetails data = new PaymentDetails()
             {
-                Intent = "order",
+                Intent = "sale",
                 Payer = new Payer()
                 {
                     PaymentMethod = "paypal"
