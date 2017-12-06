@@ -44,6 +44,8 @@ namespace ________.Controllers
             //    shoppingCart.RemoveAllShippingCharges();
             //}
 
+            shoppingCart.UpdateShippingCharges();
+
             shoppingCart.SaveToSession(HttpContext);
 
             string orderJson;
@@ -76,7 +78,7 @@ namespace ________.Controllers
             try 
             {
                 paymentDetails.VerifyShoppingCart(shoppingCart);
-                CustomVerification(shoppingCart, paymentDetails);
+                //paymentDetails.VerifyCountry(shoppingCart, await db.Countries.ToListAsync());
 
                 await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails.Payer.PayerInfo);
             }
@@ -196,21 +198,6 @@ namespace ________.Controllers
             await db.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Custom verification of shopping cart
-        /// </summary>
-        /// <param name="shoppingCart">Shopping cart stored in session</param>
-        /// <param name="paymentDetails">Payment details received from PayPal API</param>
-        protected void CustomVerification(ShoppingCart shoppingCart, PaymentDetails paymentDetails)
-        {
-            AddressBase shippingAddress = paymentDetails.Payer.PayerInfo.ShippingAddress;
-            if ((shoppingCart.Country == "US" && shippingAddress.Country != "US") ||
-                (shoppingCart.Country != "US" && shippingAddress.Country == "US"))
-            {
-                // change to JSON error
-                throw new ArgumentException("Your country does not match the country selected!");
-            }
-        }
     }
 }
 */

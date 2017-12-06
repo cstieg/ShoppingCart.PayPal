@@ -14,8 +14,8 @@ Create project at http://developer.paypal.com,
 	Save
 
 Copy PayPal.json to main project
-	Can copy contents of PayPal.live.json to PayPay.json for live PayPal, or PayPal.sandbox.json for testing
 	Insert client email and client id from developer.paypal.com
+	Can copy contents of PayPal.live.json to PayPay.json for live PayPal, or PayPal.sandbox.json for testing
 
 Copy PayPalController to controller in main project, uncomment, substitute namespaces where necessary
 Copy Scripts folder to main project

@@ -20,23 +20,22 @@ paypal.Button.render({
         sandbox: clientInfo.clientId,
         production: clientInfo.clientId
     },
-
+    
     // Show the buyer a 'Pay Now' button in the checkout flow
     commit: true,
 
     // payment() is called when the button is clicked
     payment: function (data, actions) {
         // Get JSON order information from server
-        return $.get('/paypal/GetOrderJson')
-            .then(function (data) {
-                var payment = JSON.parse(data);
+        return $.get('/paypal/GetOrderJson?country=' + getCountry(), function (data) {
+            var payment = JSON.parse(data);
 
-                // Make a call to the REST api to create the payment
-                return actions.payment.create({ payment: payment });
-            })
-            .catch(function (data) {
-                alert('Error processing order: \n' + data.responseJSON.message);
-            });
+            // Make a call to the REST api to create the payment
+            return actions.payment.create({ payment: payment });
+        })
+        .fail(function (data) {
+            alert('Error processing order: \n' + data.responseJSON.message);
+        });
     },
 
     // onAuthorize() is called when the buyer approves the payment
@@ -55,7 +54,7 @@ paypal.Button.render({
                         // Show a success page to the buyer
                         window.location.href = "/ShoppingCart/OrderSuccess";
                     })
-                    .catch(function (data) {
+                    .fail(function (data) {
                         alert('Error processing order: \n' + data.responseJSON.message);
                     });
             });

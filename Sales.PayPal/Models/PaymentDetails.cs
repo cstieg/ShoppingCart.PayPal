@@ -86,6 +86,33 @@ namespace Cstieg.Sales.PayPal
             }
         }
 
+        /// <summary>
+        /// Verifies that the country code has not changed between call to server to create order, and call to server to execute payment
+        /// </summary>
+        /// <param name="shoppingCart">Shopping cart stored in session</param>
+        /// <param name="countries">List of countries not included in 'other'</param>
+        public void VerifyCountry(ShoppingCart shoppingCart, List<Country> countries = null)
+        {
+            AddressBase shippingAddress = this.Payer.PayerInfo.ShippingAddress;
+            if (shoppingCart.Country == "--" && countries != null)
+            {
+                // if country in shopping cart is listed as other, make sure actual country is not in list of shopping cart countries
+                if (countries.Exists(c => c.IsoCode2 == shippingAddress.Country))
+                { 
+                    throw new ArgumentException("Please select your country from the list");
+                }
+            }
+            else
+            {
+                // make sure shopping cart country matches actual country
+                if (shoppingCart.Country != shippingAddress.Country)
+                {
+                    throw new ArgumentException("Your country does not match the country selected!");
+                }
+            }
+        }
+
+
     }
 
     // Nested class, child of PaymentDetails
