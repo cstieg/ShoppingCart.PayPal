@@ -20,6 +20,8 @@ Copy PayPal.json to main project
 Copy PayPalController to controller in main project, uncomment, substitute namespaces where necessary
 Copy Scripts folder to main project
 
+Make sure JQuery 3.1 is installed on main project!
+
 Uncomment this line in ShoppingCartController, and delete the next one
 	//ClientInfo ClientInfo = new PayPalApiClient().GetClientSecrets();
 	  object ClientInfo = null;
