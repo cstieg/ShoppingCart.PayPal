@@ -160,6 +160,9 @@ namespace ________.Controllers
                 }
             }
 
+            // update other models with newly saved customer entity
+            shoppingCart.Order.Customer = customer;
+            shoppingCart.Order.CustomerId = customer.Id;
             shoppingCart.Order.ShipToAddress.Customer = customer;
             shoppingCart.Order.ShipToAddress.CustomerId = customer.Id;
             shoppingCart.Order.ShipToAddress.SetNullStringsToEmpty();
@@ -187,8 +190,9 @@ namespace ________.Controllers
 
                 db.Entry(orderDetail).State = EntityState.Added;
                 
-                // don't add duplicate of product
+                // don't add duplicate of product or shippingScheme
                 db.Entry(orderDetail.Product).State = EntityState.Unchanged;
+                db.Entry(orderDetail.Product.ShippingScheme).State = EntityState.Unchanged;
             }
 
             // add order to database
