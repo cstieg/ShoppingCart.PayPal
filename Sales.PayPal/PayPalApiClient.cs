@@ -47,21 +47,6 @@ namespace Cstieg.Sales.PayPal
         /// <returns>JSON representation of the order in the format expected by PayPal</returns>
         public string CreateOrder(ShoppingCart shoppingCart)
         {
-            // Create description of order
-            string description;
-            switch (shoppingCart.Order.OrderDetails.Count)
-            {
-                case 0:
-                    throw new ArgumentException("Cannot create an order from an empty shopping cart!");
-                case 1:
-                    description = shoppingCart.Order.OrderDetails[0].Product.Name + " - Qty: " + shoppingCart.Order.OrderDetails[0].Quantity;
-                    break;
-                default:
-                    description = "Multiple products";
-                    break;
-            }
-
-            // Create JSON order object
             PaymentDetails data = new PaymentDetails()
             {
                 Intent = "sale",
@@ -88,11 +73,10 @@ namespace Cstieg.Sales.PayPal
                         {
                             Email = PayeeEmail
                         },
-                        Description = description,
+                        Description = shoppingCart.Order.Description,
                         ItemList = new ItemList()
                         {
-                            Items = GetPayPalItems(shoppingCart),
-                            //shipping_address = GetPayPalAddress(shoppingCart.GetOrder().ShipToAddress)
+                            Items = GetPayPalItems(shoppingCart)
                         }
                     }
                 },
