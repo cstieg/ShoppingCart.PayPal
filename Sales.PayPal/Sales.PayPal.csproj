@@ -7,8 +7,8 @@
     <ProjectGuid>{601225F6-0D4D-41AE-89BA-5677D1354BFB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ShoppingCart.PayPal</RootNamespace>
-    <AssemblyName>ShoppingCart.PayPal</AssemblyName>
+    <RootNamespace>Sales.PayPal</RootNamespace>
+    <AssemblyName>Sales.PayPal</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,6 +34,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>ShoppingCartPaypal.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Remote|AnyCPU'">
+    <OutputPath>bin\Remote\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControllerHelper">
@@ -63,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\NoDataException.cs" />
     <Compile Include="Models\ClientInfo.cs" />
     <Compile Include="Controllers\PayPalController.cs" />
     <Compile Include="Models\PaymentDetails.cs" />
@@ -72,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\Site\paypal.js" />
+    <None Include="app.config" />
     <None Include="PayPal.json" />
     <None Include="PayPal.live.json" />
     <None Include="PayPal.sandbox.json" />

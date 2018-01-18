@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using Cstieg.Geography;
 using Cstieg.ControllerHelper;
-using Cstieg.Sales;
 using Cstieg.Sales.PayPal;
+using Cstieg.Sales.Models;
 using ________.Models;
 
 namespace ________.Controllers
@@ -16,82 +16,83 @@ namespace ________.Controllers
     /// <summary>
     /// Controller to provide shopping cart view
     /// </summary>
-    public class PayPalController : Controller
+    public class PayPalController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
         private PayPalApiClient _paypalClient = new PayPalApiClient();
 
         /// <summary>
         /// Gets a PayPal object representation of the order in the shopping cart
         /// </summary>
         /// <returns>A JSON object in PayPal order format</returns>
-        public JsonResult GetOrderJson()
+        public async Task<JsonResult> GetOrderJson()
         {
-            //string country = Request.Params.Get("country");
-            ShoppingCart shoppingCart;
+            var db = new ApplicationDbContext();
+            string country = Request.Params.Get("country");
             try
             {
-                shoppingCart = ShoppingCart.GetFromSession(HttpContext);
+                ShoppingCart shoppingCart = await GetShoppingCart(db);
+                
+                // apply country-specific charges
+                shoppingCart.Country = country;
+                shoppingCart.UpdateShippingCharges();
+
+                await SaveShoppingCart(shoppingCart, db);
+
+                string orderJson = _paypalClient.CreateOrder(shoppingCart);
+                return Json(orderJson, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
                 return this.JError(400, e.Message);
             }
-
-            //shoppingCart.Country = country;
-            //if (country == "US")
-            //{
-            //    shoppingCart.RemoveAllShippingCharges();
-            //}
-
-            shoppingCart.UpdateShippingCharges();
-
-            shoppingCart.SaveToSession(HttpContext);
-
-            string orderJson;
-            try
-            {
-                orderJson = _paypalClient.CreateOrder(shoppingCart);
-            }
-            catch (Exception e)
-            {
-                return this.JError(400, e.Message);
-            }
-            return Json(orderJson, JsonRequestBehavior.AllowGet);
         }
 
+        // POST /PayPal/VerifyAndSave?paymentDetails={.....}
         /// <summary>
         /// Verifies and saves the shopping cart
         /// </summary>
-        /// <returns>Json success code</returns>
+        /// <param name="paymentDetails">The payment details object created by PayPal create order API call</param>
+        /// <returns>Json success</returns>
         [HttpPost]
         public async Task<JsonResult> VerifyAndSave()
         {
-            string paymentDetailsJson = Request.Params.Get("paymentDetails");
-            PaymentDetails paymentDetails = JsonConvert.DeserializeObject<PaymentDetails>(paymentDetailsJson);
-            ShoppingCart shoppingCart = ShoppingCart.GetFromSession(HttpContext);
+            var db = new ApplicationDbContext();
+            PaymentDetails paymentDetails = JsonConvert.DeserializeObject<PaymentDetails>(Request.Params.Get("paymentDetails"));
+            ShoppingCart shoppingCart = await GetShoppingCart(db);
 
             // get address and add to shopping cart
             AddressBase shippingAddress = paymentDetails.Payer.PayerInfo.ShippingAddress;
+            if (shoppingCart.Order.ShipToAddress == null)
+            {
+                shoppingCart.Order.ShipToAddress = new ShipToAddress();
+            }
             shippingAddress.CopyTo(shoppingCart.Order.ShipToAddress);
 
-            try 
+            try
             {
+                // verify payment details
                 paymentDetails.VerifyShoppingCart(shoppingCart);
-                //paymentDetails.VerifyCountry(shoppingCart, await db.Countries.ToListAsync());
-
-                await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails.Payer.PayerInfo);
+                paymentDetails.VerifyCountry(shoppingCart, await db.Countries.ToListAsync());
             }
             catch (Exception e)
             {
                 return this.JError(400, e.Message);
             }
+            
+            try
+            { 
+                // save order info to db
+                await SaveShoppingCartToDbAsync(shoppingCart, paymentDetails, db);
 
-            // clear shopping cart
-            shoppingCart = new ShoppingCart();
-            shoppingCart.SaveToSession(HttpContext);
+                // clear shopping cart
+                await DeleteShoppingCart(shoppingCart, db);
+            }
+            catch (Exception e)
+            {
+                return this.JError(500, "Database error");
+            }
 
-            // return success
+            // On success, front end will execute payment with PayPal
             return this.JOk();
         }
 
@@ -99,51 +100,42 @@ namespace ________.Controllers
         /// Saves the shopping cart to the database.
         /// </summary>
         /// <param name="shoppingCart">Shopping cart stored in session</param>
-        /// <param name="payerInfo">Payer info received from PayPal API</param>
-        private async Task SaveShoppingCartToDbAsync(ShoppingCart shoppingCart, PayerInfo payerInfo)
+        /// <param name="paymentDetails">Payment details received from PayPal API</param>
+        /// <param name="db">Database context to which shopping cart belongs</param>
+        private async Task SaveShoppingCartToDbAsync(ShoppingCart shoppingCart, PaymentDetails paymentDetails, ApplicationDbContext db)
         {
-            var customersDb = db.Customers;
-            var addressesDb = db.Addresses;
-            var ordersDb = db.Orders;
-
-            // update customer
-            Customer customer = await customersDb.SingleOrDefaultAsync(c => c.EmailAddress == payerInfo.Email);
+            // update customer ------------------------------------------------------
+            DateTime currentTime = DateTime.Now;
+            PayerInfo payerInfo = paymentDetails.Payer.PayerInfo;
+            Customer customer = await db.Customers.SingleOrDefaultAsync(c => c.EmailAddress == payerInfo.Email);
             bool isNewCustomer = customer == null;
             if (isNewCustomer)
             {
                 customer = new Customer()
                 {
-                    Registered = DateTime.Now,
+                    Registered = currentTime,
+                    LastVisited = currentTime,
                     EmailAddress = payerInfo.Email,
-                    CustomerName = payerInfo.FirstName + " " +
-                                    payerInfo.MiddleName + " " +
-                                    payerInfo.LastName
+                    FirstName = payerInfo.FirstName,
+                    LastName = payerInfo.LastName
                 };
+                db.Customers.Add(customer);
             }
             else
             {
                 shoppingCart.Order.Customer = customer;
                 shoppingCart.Order.CustomerId = customer.Id;
-            }
-
-
-            customer.LastVisited = DateTime.Now;
-            if (isNewCustomer)
-            {
-                customersDb.Add(customer);
-            }
-            else
-            {
+                customer.LastVisited = currentTime;
                 db.Entry(customer).State = EntityState.Modified;
             }
 
-            // update address
+            // update address ----------------------------------------------------------
             bool isNewAddress = true;
             if (!isNewCustomer)
             {
                 AddressBase newAddress = payerInfo.ShippingAddress;
                 newAddress.SetNullStringsToEmpty();
-                ShipToAddress addressOnFile = await addressesDb.Where(a => a.Address1 == newAddress.Address1
+                ShipToAddress addressOnFile = await db.Addresses.Where(a => a.Address1 == newAddress.Address1
                                                             && a.Address2 == newAddress.Address2
                                                             && a.City == newAddress.City
                                                             && a.State == newAddress.State
@@ -157,47 +149,37 @@ namespace ________.Controllers
                 if (!isNewAddress)
                 {
                     shoppingCart.Order.ShipToAddressId = addressOnFile.Id;
+                    if (shoppingCart.Order.ShipToAddress != null)
+                    {
+                        db.Entry(shoppingCart.Order.ShipToAddress).State = EntityState.Detached;
+                    }
+                    if (shoppingCart.Order.BillToAddress != null)
+                    {
+                        db.Entry(shoppingCart.Order.BillToAddress).State = EntityState.Detached;
+                    }
                 }
             }
 
-            // update other models with newly saved customer entity
-            shoppingCart.Order.Customer = customer;
-            shoppingCart.Order.CustomerId = customer.Id;
-            shoppingCart.Order.ShipToAddress.Customer = customer;
-            shoppingCart.Order.ShipToAddress.CustomerId = customer.Id;
             shoppingCart.Order.ShipToAddress.SetNullStringsToEmpty();
 
             // Add new address to database
             if (isNewAddress)
-            {
-                addressesDb.Add(shoppingCart.Order.ShipToAddress);
+            { 
+                shoppingCart.Order.ShipToAddress.Customer = customer;
+                db.Addresses.Add(shoppingCart.Order.ShipToAddress);
             }
 
             // bill to address the same as shipping address
-            if (shoppingCart.Order.BillToAddress == null || shoppingCart.Order.BillToAddress.Address1 == null)
+            if (shoppingCart.Order.BillToAddress == null || shoppingCart.Order.BillToAddress.Address1 == "")
             {
-                shoppingCart.Order.BillToAddress = shoppingCart.Order.ShipToAddress;
                 shoppingCart.Order.BillToAddressId = shoppingCart.Order.ShipToAddressId;
             }
 
-            await db.SaveChangesAsync();
-
-            // add order details to database
-            for (int i = 0; i < shoppingCart.Order.OrderDetails.Count; i++)
-            {
-                var orderDetail = shoppingCart.Order.OrderDetails[i];
-                orderDetail.ProductId = orderDetail.Product.Id;
-
-                db.Entry(orderDetail).State = EntityState.Added;
-                
-                // don't add duplicate of product or shippingScheme
-                db.Entry(orderDetail.Product).State = EntityState.Unchanged;
-                db.Entry(orderDetail.Product.ShippingScheme).State = EntityState.Unchanged;
-            }
-
-            // add order to database
-            shoppingCart.Order.DateOrdered = DateTime.Now;
-            ordersDb.Add(shoppingCart.Order);
+            // add order to database --------------------------------------------------
+            shoppingCart.Order.Cart = paymentDetails.Cart;
+            shoppingCart.Order.DateOrdered = currentTime;
+            db.Entry(shoppingCart.Order).State = EntityState.Modified;
+            // order details are already in db as part of shopping cart
 
             await db.SaveChangesAsync();
         }

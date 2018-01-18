@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Web.Hosting;
 using Cstieg.Geography;
 using Cstieg.Sales.Models;
+using Sales.PayPal.Exceptions;
 
 namespace Cstieg.Sales.PayPal
 {
@@ -136,6 +136,11 @@ namespace Cstieg.Sales.PayPal
         {
             List<Item> items = new List<Item>();
             List<OrderDetail> shoppingCartItems = shoppingCart.GetItems();
+            if (shoppingCartItems.Count == 0)
+            {
+                throw new NoDataException("There are no items in the shopping cart!  Please add your items again.");
+            }
+
 
             for (int i = 0; i < shoppingCartItems.Count; i++)
             {
