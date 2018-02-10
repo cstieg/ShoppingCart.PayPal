@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sales.PayPal.Exceptions
+namespace Cstieg.Sales.PayPal.Exceptions
 {
     /// <summary>
     /// Thrown when an object is passed containing no data, such as no items in a shopping cart
