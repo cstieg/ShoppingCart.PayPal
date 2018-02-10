@@ -1,13 +1,19 @@
 ﻿{
   "mode": "sandbox",
-  "client_account": "",
-  "client_id": "",
-  "return_url": "",
-  "cancel_url": "",
-
-  // Reserved for REST calls
-  "client_secret": "",
-  "express_checkout_access_token": "",
-  "create_payment_url": "",
-  "execute_payment_url": ""
+  "accounts": [
+    {
+      "mode": "production",
+      "client_account": "stieg_d@yahoo.com",
+      "client_id": "AVhXyBpehMOaxxdKZqiozPeQKwUmEmDQfAcyV2sqUuq_aQrQMjs3bWcldHzPcSh4kZz8WqZbowFxH6_w",
+      "return_url": "https://www.deerflypatches.com",
+      "cancel_url": "https://www.deerflypatches.com"
+    },
+    {
+      "mode": "sandbox",
+      "client_account": "cstieg4899-facilitator@yahoo.com",
+      "client_id": "AaLYEqNuR4sUTr6y7l7riLn6GhJDv6YY-1LrWwIyRHrRmXOlQjGscB8MQTUY_9unYy4SRSzhdVvRQ9_m",
+      "return_url": "http://www.example.com",
+      "cancel_url": "http://www.example.com"
+    }
+  ]
 }
