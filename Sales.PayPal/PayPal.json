@@ -1,17 +1,18 @@
 ﻿{
+  // Which mode the system is currently using.  Values: "production", "sandbox"
   "mode": "sandbox",
   "accounts": [
     {
       "mode": "production",
-      "client_account": "stieg_d@yahoo.com",
-      "client_id": "AVhXyBpehMOaxxdKZqiozPeQKwUmEmDQfAcyV2sqUuq_aQrQMjs3bWcldHzPcSh4kZz8WqZbowFxH6_w",
-      "return_url": "https://www.deerflypatches.com",
-      "cancel_url": "https://www.deerflypatches.com"
+      "client_account": "",
+      "client_id": "",
+      "return_url": "",
+      "cancel_url": ""
     },
     {
       "mode": "sandbox",
-      "client_account": "cstieg4899-facilitator@yahoo.com",
-      "client_id": "AaLYEqNuR4sUTr6y7l7riLn6GhJDv6YY-1LrWwIyRHrRmXOlQjGscB8MQTUY_9unYy4SRSzhdVvRQ9_m",
+      "client_account": "myemail@example.com",
+      "client_id": "weoifjweoifjewClientIdFromPayPalweoijwefoijweefoijwe12339023r09f2",
       "return_url": "http://www.example.com",
       "cancel_url": "http://www.example.com"
     }

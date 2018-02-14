@@ -94,7 +94,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="PayPal.json" />
+    <Content Include="PayPal.json" />
     <None Include="Sales.PayPal.pfx" />
   </ItemGroup>
   <ItemGroup>

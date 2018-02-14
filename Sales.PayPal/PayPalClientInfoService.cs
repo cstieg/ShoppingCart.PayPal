@@ -1,9 +1,6 @@
 ﻿using Cstieg.Sales.PayPal.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Web.Hosting;
 
 namespace Cstieg.Sales.PayPal
 {
@@ -12,8 +9,9 @@ namespace Cstieg.Sales.PayPal
     /// </summary>
     public class PayPalClientInfoService
     {
-        public PayPalClientInfo ClientInfo { get; set; }
         private string _clientInfoJson;
+
+        public PayPalClientInfo ClientInfo { get; set; }
 
         /// <summary>
         /// Constructor for PayPalClientInfoService
@@ -33,6 +31,5 @@ namespace Cstieg.Sales.PayPal
         {
             return new List<PayPalClientAccount>(ClientInfo.Accounts).Find(c => c.Mode == ClientInfo.Mode);
         }
-
     }
 }
