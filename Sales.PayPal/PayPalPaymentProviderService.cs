@@ -100,7 +100,7 @@ namespace Cstieg.Sales.PayPal
             return GetShippingAddress().Country;
         }
 
-        public ICustomer GetCustomer()
+        public Customer GetCustomer()
         {
             PayerInfo pi = PaymentResponse.Payer.PayerInfo;
             return new Customer()
@@ -111,7 +111,7 @@ namespace Cstieg.Sales.PayPal
             };
         }
 
-        public IOrder GetOrder()
+        public Order GetOrder()
         {
             var order = new Order()
             {
@@ -140,7 +140,7 @@ namespace Cstieg.Sales.PayPal
         /// </summary>
         /// <param name="shoppingCart">Shopping cart to check out</param>
         /// <returns>A JSON string containing the payment details</returns>
-        public string CreatePaymentDetails(IShoppingCart shoppingCart)
+        public string CreatePaymentDetails(ShoppingCart shoppingCart)
         {
             PaymentDetails data = new PaymentDetails()
             {
@@ -190,7 +190,7 @@ namespace Cstieg.Sales.PayPal
         /// </summary>
         /// <param name="shoppingCart">Shopping cart containing items to be purchased</param>
         /// <returns>Shopping cart items in PayPal object format</returns>
-        private List<Item> GetPayPalItems(IShoppingCart shoppingCart)
+        private List<Item> GetPayPalItems(ShoppingCart shoppingCart)
         {
             List<Item> items = new List<Item>();
             List<OrderDetail> shoppingCartItems = shoppingCart.Order.OrderDetails;
