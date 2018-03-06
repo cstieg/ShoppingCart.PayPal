@@ -2,23 +2,20 @@
 using Cstieg.ControllerHelper;
 using Cstieg.Sales;
 using Cstieg.Sales.Models;
-using Cstieg.Sales.Repositories;
-using _______________.Models;
 using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace _______________.Controllers
+namespace ____________________.Controllers
 {
     /// <summary>
     /// Controller to provide shopping cart view
     /// </summary>
     public class PayPalController : BaseController
     {
-        private ISalesDbContext _context = new ApplicationDbContext();
-        private IShoppingCartService _shoppingCartService;
-    
+        private ShoppingCartService _shoppingCartService;
+
         // Initialize variables needing requestContext, unable to initialize in controller
         protected override void Initialize(RequestContext requestContext)
         {
@@ -38,7 +35,7 @@ namespace _______________.Controllers
             try
             {
                 ShoppingCart shoppingCart = await _shoppingCartService.SetCountryAsync(country);
-                string orderJson = (await GetPayPalService()).CreatePaymentDetails(shoppingCart);
+                string orderJson = (await GetPayPalServiceAsync()).CreatePaymentDetails(shoppingCart);
                 return Json(orderJson, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -58,7 +55,7 @@ namespace _______________.Controllers
         {
             try
             {
-                var _payPalService = await GetPayPalService();
+                var _payPalService = await GetPayPalServiceAsync();
                 _payPalService.SetPaymentResponse(paymentDetails);
                 var shipToAddress = _payPalService.GetShippingAddress();
                 var customer = _payPalService.GetCustomer();
@@ -68,13 +65,12 @@ namespace _______________.Controllers
                 // On success, front end will execute payment with PayPal
                 return this.JOk(order);
             }
-            
+
             catch (Exception e)
             {
                 return this.JError(400, e.Message);
             }
         }
-        
+
     }
-}
-*/
+}*/

@@ -100,5 +100,11 @@
   <ItemGroup>
     <Content Include="Scripts\Site\paypal.js" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sales\Sales\Sales.csproj">
+      <Project>{af7878a0-2385-4d93-9d5e-06fad9982ca2}</Project>
+      <Name>Sales</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
