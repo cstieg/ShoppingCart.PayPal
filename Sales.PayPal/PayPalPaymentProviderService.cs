@@ -172,7 +172,8 @@ namespace Cstieg.Sales.PayPal
                         ItemList = new ItemList()
                         {
                             Items = GetPayPalItems(shoppingCart)
-                        }
+                        },
+                        NoteToPayee = shoppingCart.Order.NoteToPayee
                     }
                 },
                 RedirectUrls = new RedirectUrls
